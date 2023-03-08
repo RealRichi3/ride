@@ -4,7 +4,8 @@ import cors from 'cors';
 import { NODE_ENV, PORT } from './config';
 import errorHandler from './middlewares/errorHandler';
 import { NotFoundError } from './utils/errors';
-import authRoute  from './routes/auth.routes';
+import authRoute from './routes/auth.routes';
+import routeHandler from './routes';
 
 /**
  * Init Middlewares
@@ -36,7 +37,12 @@ function initExpressRouteHandler(app: Application): void {
         });
     });
 
-    app.use('/api/v1', [authRoute] )
+    /** Initialize Route Handler
+     *
+     * Route handler directs requests to handlers
+     * based on the route prefix:
+     * */
+    routeHandler(app);
 
     app.all('*', (req: Request, res: Response, next: NextFunction) => {
         next(new NotFoundError('Resource not found'));
@@ -49,9 +55,9 @@ export const app: Application = express();
 
 /**
  * Start Express server
- * 
+ *
  * @description Initializes middlewares, and route handlers then starts server
- * 
+ *
  */
 export function startExpressServer(): void {
     initMiddlewares(app);
