@@ -1,7 +1,10 @@
-import { Application } from 'express';
+import { Router, Application, Request, Response, NextFunction } from 'express';
 
 import authRoute from './auth.routes';
 
-export default function routeHandler (app: Application) {
-    app.use('/', [authRoute]);
+export default function routeHandler(app: Application) {
+    const router = Router();
+    app.use('/api/v1', router);
+
+    router.use('/auth', authRoute);
 }
