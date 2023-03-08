@@ -1,13 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { Error } from 'mongoose';
 import { MongoError } from 'mongodb';
+import { MongoDuplicateKeyError } from '../types';
 import { BadRequestError, CustomAPIError, InternalServerError } from '../utils/errors';
 import { NODE_ENV } from '../config';
-
-type MongoDuplicateKeyError = MongoError & {
-    code: number;
-    keyValue?: { [key: string]: any };
-};
 
 function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
     NODE_ENV != 'test' ? console.log(err) : null;
@@ -53,3 +49,5 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
         message: error.message,
     });
 }
+
+export default errorHandler
