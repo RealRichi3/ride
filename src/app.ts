@@ -4,6 +4,7 @@ import cors from 'cors';
 import { NODE_ENV, PORT } from './config';
 import errorHandler from './middlewares/errorHandler';
 import { NotFoundError } from './utils/errors';
+import authRoute  from './routes/auth.routes';
 
 /**
  * Init Middlewares
@@ -16,7 +17,6 @@ import { NotFoundError } from './utils/errors';
  */
 function initMiddlewares(app: Application): void {
     NODE_ENV == 'dev' ? app.use(morgan('dev')) : null;
-
     app.use(express.json());
     app.use(cors());
 }
@@ -35,6 +35,8 @@ function initExpressRouteHandler(app: Application): void {
             message: 'Welcome to Ride APP API built by molunorichie@gmail.com',
         });
     });
+
+    app.use('/api/v1', [authRoute] )
 
     app.all('*', (req: Request, res: Response, next: NextFunction) => {
         next(new NotFoundError('Resource not found'));
