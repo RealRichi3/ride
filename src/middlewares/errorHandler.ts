@@ -3,10 +3,9 @@ import { Error } from 'mongoose';
 import { MongoError } from 'mongodb';
 import { MongoDuplicateKeyError } from '../types';
 import { BadRequestError, CustomAPIError, InternalServerError } from '../utils/errors';
-import { NODE_ENV } from '../config';
 
 function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
-    NODE_ENV != 'test' ? console.log(err) : null;
+    // NODE_ENV != 'test' ? console.log(err) : null;
 
     let error: CustomAPIError;
 
@@ -40,14 +39,19 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
          */
 
         error = new CustomAPIError('Invalid authentication token', 401);
-    } else {
-        error = new InternalServerError('An error occurred');
+    } else if (err instanceof CustomAPIError) {
+        /** Handle other API errors */
+        
+        return res.status(err.statusCode).send({
+            data: null,
+            message: err.message,
+        });
     }
 
-    return res.status(error.statusCode).send({
-        data: null,
-        message: error.message,
-    });
+    /**
+     * If it passes as not being other errors, its an Internal server error
+     */
+    return res.status(500).send({ message: 'An error occured' });
 }
 
-export default errorHandler
+export default errorHandler;
