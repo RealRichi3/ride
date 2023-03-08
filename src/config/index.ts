@@ -3,7 +3,7 @@ export const MONGO_URI = process.env.MONGO_URI!,
     MONGO_URI_DEV = process.env.MONGO_URI_DEV!,
     MONGO_URI_PROD = process.env.MONGO_URI_PROD!;
 
-export const PORT = process.env.POR || 5555!;
+export const PORT = process.env.PORT! || 5555;
 
 /* JWT TOKENS */
 export const JWT_SECRET = process.env.JWT_ACCESS_SECRET!,
