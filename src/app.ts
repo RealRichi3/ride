@@ -2,9 +2,8 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import { NODE_ENV, PORT } from './config';
-import errorHandler from './middlewares/errorHandler';
 import { NotFoundError } from './utils/errors';
-import authRoute from './routes/auth.routes';
+import errorHandler from './middlewares/errorHandler';
 import routeHandler from './routes';
 
 /**
