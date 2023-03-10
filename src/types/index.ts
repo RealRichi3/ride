@@ -1,4 +1,4 @@
-import { MongoError, MongoServerError } from 'mongodb';
+import { MongoServerError } from 'mongodb';
 
 export type MongoDuplicateKeyError = MongoServerError & {
     code: number;
