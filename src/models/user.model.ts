@@ -1,16 +1,9 @@
-import { Mongoose, Schema, Document, Types, model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
+import { IUser } from './types/user.types';
 
-const options = { toObject: { virtuals: true }, toJSON: { virtuals: true } };
+const options = { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } };
 
-interface IUser extends Document {
-    firstname: string;
-    lastname: string;
-    email: string;
-    user: Types.ObjectId;
-    role: 'EndUser' | 'Admin' | 'SuperAdmin';
-}
-
-const user_schema = new Schema(
+const user_schema = new Schema<IUser>(
     {
         firstname: { type: String, required: true },
         lastname: { type: String, required: true },
@@ -28,11 +21,35 @@ const user_schema = new Schema(
         googleId: { type: String, select: false },
         githubId: { type: String, select: false },
     },
-    { timestamp: true, ...options}
+    options
 );
 
-const User = model<IUser>('User', user_schema)
+// Get users password from Password collection
+user_schema.virtual('password', {
+    ref: 'Password',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true,
+});
+
+// Get authentication codes from AuthCode collection
+user_schema.virtual('auth_codes', {
+    ref: 'AuthCode',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true,
+});
+
+// Get user users account status from Status collection
+user_schema.virtual('status', {
+    ref: 'Status',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true,
+});
+
+const User: Model<IUser> = mongoose.model<IUser>('User', user_schema);
 
 export default {
-    User
-}
+    User,
+};
