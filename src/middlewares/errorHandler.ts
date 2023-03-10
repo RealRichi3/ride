@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Error } from 'mongoose';
 import { MongoDuplicateKeyError } from '../types';
 import { BadRequestError, CustomAPIError, InternalServerError } from '../utils/errors';
@@ -14,7 +14,7 @@ import { BadRequestError, CustomAPIError, InternalServerError } from '../utils/e
  *
  * @returns {Response} - a response object containing the error message and status code.
  */
-function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+function errorHandler(err: Error, req: Request, res: Response) {
     // log the error to the console, but only if the environment is not "test"
     process.env.NODE_ENV !== 'test' ? console.log(err) : null;
 
@@ -40,7 +40,7 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
         // handle validation errors from Mongoose
         const error_messages = Object.values(err.errors);
         const message = error_messages.join(', ');
-        
+
         error = new InternalServerError(message);
     } else if (err.name === 'TokenExpiredError') {
         // handle expired JWT tokens
