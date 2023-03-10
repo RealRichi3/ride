@@ -1,12 +1,8 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
+import { userSignup } from '../controllers/auth.controller';
 
-let router = Router();
+const router = Router();
 
-router.get('/main', (req: Request, res: Response, next: NextFunction) => {
-    console.log('insisdde')
-    return res.status(200).send({
-        message: 'seen',
-    });
-});
+router.post('/signup/enduser', userSignup);
 
 export default router;

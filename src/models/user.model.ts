@@ -50,6 +50,4 @@ user_schema.virtual('status', {
 
 const User: Model<IUser> = mongoose.model<IUser>('User', user_schema);
 
-export default {
-    User,
-};
+export { User, IUser };

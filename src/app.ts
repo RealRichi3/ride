@@ -1,3 +1,4 @@
+import 'express-async-errors'
 import express, { Application, NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';

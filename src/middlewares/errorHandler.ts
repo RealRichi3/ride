@@ -10,7 +10,6 @@ import { BadRequestError, CustomAPIError, InternalServerError } from '../utils/e
  * @param {Error} err - the error object being handled.
  * @param {Request} req - the request object.
  * @param {Response} res - the response object.
- * @param {NextFunction} next - the next function in the middleware chain.
  *
  * @returns {Response} - a response object containing the error message and status code.
  */
