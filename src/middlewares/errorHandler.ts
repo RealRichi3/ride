@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { Error } from 'mongoose';
 import { MongoDuplicateKeyError } from '../types';
-import { BadRequestError, CustomAPIError, InternalServerError, UnauthenticatedError } from '../utils/errors';
+import {
+    BadRequestError,
+    CustomAPIError,
+    InternalServerError,
+    UnauthenticatedError,
+} from '../utils/errors';
 import { ZodError } from 'zod';
 
 /**
@@ -29,7 +34,7 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
             // get the key value causing the duplicate key error
             const error_key_value: string = mongo_error.keyValue?.email;
             const message = `${error_key_value || 'User'} already exists, please use another email`;
-            
+
             error = new BadRequestError(message);
         } else {
             // handle all other Mongo errors
@@ -39,7 +44,16 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
     } else if (err instanceof ZodError) {
         // Handle zod schema validation error
 
-        error = new BadRequestError(err.message)
+        const errors = err.errors.map(e => ({
+            field: e.path.join('.'),
+            message: e.message,
+        }));
+        
+        return res.status(400).json({
+            status: 'error',
+            message: 'Validation error',
+            errors,
+        });
     } else if (err instanceof Error.ValidationError) {
         // handle validation errors from Mongoose
         const error_messages = Object.values(err.errors);
