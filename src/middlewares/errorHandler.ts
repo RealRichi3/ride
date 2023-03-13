@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Error } from 'mongoose';
 import { MongoDuplicateKeyError } from '../types';
-import { BadRequestError, CustomAPIError, InternalServerError, Unauthenticated } from '../utils/errors';
-import { ZodError } from 'zod/lib';
+import { BadRequestError, CustomAPIError, InternalServerError, UnauthenticatedError } from '../utils/errors';
+import { ZodError } from 'zod';
 
 /**
  * This function is used to handle all errors that occur in the application.
@@ -14,7 +14,7 @@ import { ZodError } from 'zod/lib';
  *
  * @returns {Response} - a response object containing the error message and status code.
  */
-function errorHandler(err: Error, req: Request, res: Response) {
+function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
     // log the error to the console, but only if the environment is not "test"
     process.env.NODE_ENV !== 'test' ? console.log(err) : null;
 
@@ -36,24 +36,24 @@ function errorHandler(err: Error, req: Request, res: Response) {
 
             error = new InternalServerError('An error occurred');
         }
+    } else if (err instanceof ZodError) {
+        // Handle zod schema validation error
+
+        error = new BadRequestError(err.message)
     } else if (err instanceof Error.ValidationError) {
         // handle validation errors from Mongoose
         const error_messages = Object.values(err.errors);
         const message = error_messages.join(', ');
 
         error = new InternalServerError(message);
-    } else if (err instanceof ZodError) {
-        // handle Zod schema validation errors
-
-        error = new BadRequestError(err.message);
     } else if (err.name === 'TokenExpiredError') {
         // handle expired JWT tokens
 
-        error = new Unauthenticated('Token expired');
+        error = new UnauthenticatedError('Token expired');
     } else if (err.name === 'JsonWebTokenError' && err.message === 'jwt malformed') {
         // handle malformed JWT tokens
 
-        error = new Unauthenticated('Invalid authentication token');
+        error = new UnauthenticatedError('Invalid authentication token');
     } else if (err instanceof CustomAPIError) {
         // handle all other custom API errors
 
@@ -61,7 +61,7 @@ function errorHandler(err: Error, req: Request, res: Response) {
             data: null,
             message: err.message,
         });
-    } 
+    }
 
     // if there is a custom error object, return it to the client
     if (error) {

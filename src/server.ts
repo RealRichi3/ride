@@ -8,11 +8,9 @@ import { NodeENV } from './types';
  * if NODE_ENV = 'prod' use .env.prod
  * if NODE_ENV = 'test' use .env.prod
  */
-
-let path: string;
 const NODE_ENV = process.env.NODE_ENV as NodeENV;
 
-path = NODE_ENV ? `${__dirname}/.env.${NODE_ENV}` : `${__dirname}/.env`;
+const path = NODE_ENV ? `${__dirname}/.env.${NODE_ENV}` : `${__dirname}/.env`;
 dotenv.config({ path });
 
 import { connectToDatabase } from './database';
