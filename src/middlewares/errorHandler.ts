@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { Error } from 'mongoose';
 import { MongoDuplicateKeyError } from '../types';
-import { BadRequestError, CustomAPIError, InternalServerError } from '../utils/errors';
+import { BadRequestError, CustomAPIError, InternalServerError, Unauthenticated } from '../utils/errors';
+import { ZodError } from 'zod/lib';
 
 /**
  * This function is used to handle all errors that occur in the application.
@@ -41,14 +42,18 @@ function errorHandler(err: Error, req: Request, res: Response) {
         const message = error_messages.join(', ');
 
         error = new InternalServerError(message);
+    } else if (err instanceof ZodError) {
+        // handle Zod schema validation errors
+
+        error = new BadRequestError(err.message);
     } else if (err.name === 'TokenExpiredError') {
         // handle expired JWT tokens
 
-        error = new CustomAPIError('Token expired', 401);
+        error = new Unauthenticated('Token expired');
     } else if (err.name === 'JsonWebTokenError' && err.message === 'jwt malformed') {
         // handle malformed JWT tokens
 
-        error = new CustomAPIError('Invalid authentication token', 401);
+        error = new Unauthenticated('Invalid authentication token');
     } else if (err instanceof CustomAPIError) {
         // handle all other custom API errors
 
@@ -56,7 +61,7 @@ function errorHandler(err: Error, req: Request, res: Response) {
             data: null,
             message: err.message,
         });
-    }
+    } 
 
     // if there is a custom error object, return it to the client
     if (error) {
