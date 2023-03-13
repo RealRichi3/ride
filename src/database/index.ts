@@ -16,7 +16,7 @@ function getDBConnectionString(env: NodeENV): string {
 }
 
 export async function connectToDatabase() {
-    const mongo_url: string = getDBConnectionString(config.NODE_ENV as NodeENV);
+    const mongo_url: string = getDBConnectionString(config.NODE_ENV);
 
     Mongoose.set('strictQuery', false);
     await Mongoose.connect(mongo_url);
