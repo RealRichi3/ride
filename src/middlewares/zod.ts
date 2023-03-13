@@ -7,13 +7,23 @@ interface ValidationSchemas {
     [key: string]: z.ZodObject<any>;
 }
 
-
-
+// Define the validation schemas for each route
 const validation_schemas: ValidationSchemas = {
     '/signup/enduser': zCustomSchemas.userSignupSchema,
 };
 
-function zodValidator(req: Request, res: Response, next: NextFunction) {
+/**
+ * This function is used to validate the request body against a zod schema.
+ * 
+ * @param {Request} req - the request object.
+ * @param {Response} res - the response object.
+ * @param {NextFunction} next - the next function.
+ * 
+ * @returns {void}
+ * 
+ * @throws {Error} - if the validation schema for the request path is not defined.
+ */
+function zodValidator(req: Request, res: Response, next: NextFunction): void {
     const path = req.path;
     const validation_schema = validation_schemas[req.path];
 
