@@ -1,21 +1,16 @@
 import * as z from 'zod';
 import { Request, Response, NextFunction } from 'express';
-
-const userSignupSchema = z.object({
-    email: z.string().email(),
-    firstname: z.string(),
-    lastname: z.string(),
-    password: z.string(),
-    role: z.enum(['EndUser', 'Admin', 'SuperAdmin']),
-});
+import { zCustomSchemas } from '../types';
 
 interface ValidationSchemas {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: z.ZodObject<any>;
 }
 
+
+
 const validation_schemas: ValidationSchemas = {
-    '/signup/enduser': userSignupSchema,
+    '/signup/enduser': zCustomSchemas.userSignupSchema,
 };
 
 function zodValidator(req: Request, res: Response, next: NextFunction) {

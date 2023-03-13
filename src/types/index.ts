@@ -1,8 +1,16 @@
+import * as zCustomSchemas from './zod'
 import { MongoServerError } from 'mongodb';
 
-export type MongoDuplicateKeyError = MongoServerError & {
+type MongoDuplicateKeyError = MongoServerError & {
     code: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     keyValue?: { [key: string]: any };
 };
 
-export type NodeENV = 'dev' | 'test' | 'prod';
+type NodeENV = 'dev' | 'test' | 'prod';
+
+export {
+    MongoDuplicateKeyError,
+    zCustomSchemas,
+    NodeENV
+}
