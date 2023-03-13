@@ -19,7 +19,8 @@ import { ZodError } from 'zod';
  *
  * @returns {Response} - a response object containing the error message and status code.
  */
-function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): Response {
     // log the error to the console, but only if the environment is not "test"
     process.env.NODE_ENV !== 'test' ? console.log(err) : null;
 
@@ -48,7 +49,7 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
             field: e.path.join('.'),
             message: e.message,
         }));
-        
+
         return res.status(400).json({
             status: 'error',
             message: 'Validation error',
