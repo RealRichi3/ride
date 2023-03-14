@@ -1,5 +1,8 @@
 import mongoose, { Schema, Model } from 'mongoose';
+import { Status } from './status.model';
 import { IUser } from './types/user.types';
+import { NODE_ENV } from '../config';
+import { AuthCode } from './auth.model';
 
 const options = { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } };
 
@@ -46,6 +49,26 @@ user_schema.virtual('status', {
     localField: '_id',
     foreignField: 'user',
     justOne: true,
+});
+
+user_schema.pre('validate', async function (next) {
+    if (this.isNew) {
+        const status = new Status({ user: this._id });
+
+        // Activate user if role is EndUser
+        status.isActive = this.role === 'EndUser' ? true : false;
+
+        // Activate and verify user if in development mode
+        if (NODE_ENV == 'dev') {
+            status.isActive = true;
+            status.isVerified = true;
+        }
+
+        await status.save()
+        await AuthCode.create({ user: this._id });
+    }
+
+    next();
 });
 
 const User: Model<IUser> = mongoose.model<IUser>('User', user_schema);
