@@ -1,11 +1,15 @@
-import { IUser, User } from '../models/user.model';
+import { IUser } from '../models/user.model';
 import { AuthCode } from '../models/auth.model';
 import { NotFoundError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
 import { v4 } from 'uuid';
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 import { IAuthCode } from '../models/types/auth.types';
+
+type AuthTokenType = 'access' | 'refresh';
+
+type AuthCodeType = 'password_reset' | 'verification' | 'activation' | 'deactivation';
 
 /**
  * Generate Required Config Variables
@@ -17,54 +21,52 @@ import { IAuthCode } from '../models/types/auth.types';
  *
  * @throws {Error} if config_type is not 'access', 'refresh', 'password_reset' or 'verification'
  */
-type ConfigType =
-    | 'access'
-    | 'refresh'
-    | 'password_reset'
-    | 'verification'
-    | 'activation'
-    | 'deactivation';
-function getRequiredConfigVars(config_type: ConfigType): { secret: string; expiry: string } {
-    let secret: string | undefined;
-    let expiry: string | undefined;
-
+function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType): {
+    secret: string;
+    expiry: string;
+} {
     switch (config_type) {
         case 'access':
-            secret = config.JWT_ACCESS_SECRET;
-            expiry = config.JWT_ACCESS_EXP;
-            break;
+            return { secret: config.JWT_ACCESS_SECRET, expiry: config.JWT_ACCESS_EXP };
 
         case 'refresh':
-            secret = config.JWT_REFRESH_SECRET;
-            expiry = config.JWT_REFRESH_EXP;
-            break;
+            return { secret: config.JWT_REFRESH_SECRET, expiry: config.JWT_REFRESH_EXP };
 
         case 'password_reset':
-            secret = config.JWT_PASSWORDRESET_SECRET;
-            expiry = config.JWT_PASSWORDRESET_EXP;
-            break;
+            return {
+                secret: config.JWT_PASSWORDRESET_SECRET,
+                expiry: config.JWT_PASSWORDRESET_EXP,
+            };
 
         case 'verification':
-            secret = config.JWT_EMAILVERIFICATION_SECRET;
-            expiry = config.JWT_EMAILVERIFICATION_EXP;
-            break;
+            return {
+                secret: config.JWT_EMAILVERIFICATION_SECRET,
+                expiry: config.JWT_EMAILVERIFICATION_EXP,
+            };
 
         // if config_type is not 'access' or 'refresh', throw an error
         default:
             throw new Error(`Invalid config_type: ${config_type}`);
     }
-
-    if (!secret || !expiry) throw new Error(`Invalid config_type: ${config_type}`);
-
-    return { secret, expiry };
 }
 
-async function getCodes(code_type: ConfigType, user: IUser | mongoose.Types.ObjectId): Promise<IAuthCode> {
+/**
+ * Get auth codes
+ *
+ * @description Get auth codes for a user
+ *
+ * @param {AuthTokenType} code_type
+ * @param {MongooseDocument | mongoose.Types.ObjectId } user
+ * @returns
+ */
+export async function getAuthCodes(
+    code_type: AuthCodeType,
+    user: IUser | mongoose.Types.ObjectId
+): Promise<IAuthCode> {
     const random_number = Math.floor(100000 + Math.random() * 900000);
-    let verification_code: number,
-        password_reset_code: number;
-        // activation_code: number,
-        // deactivation_code: number;
+    let verification_code: number, password_reset_code: number;
+    // activation_code: number,
+    // deactivation_code: number;
 
     let users_auth_code: IAuthCode | null;
 
@@ -106,16 +108,25 @@ async function getCodes(code_type: ConfigType, user: IUser | mongoose.Types.Obje
     return users_auth_code;
 }
 
-async function getAuthTokens(
+/**
+ * Get auth tokens
+ *
+ * @description Get auth tokens for a user i.e access token and refresh token
+ *
+ * @param {MongooseDocument | mongoose.Types.ObjectId } user
+ * @param {AuthTokenType} token_type
+ * @returns
+ */
+export async function getAuthTokens(
     user: IUser | mongoose.Types.ObjectId,
-    token_type: ConfigType
-): { access_token: string; refresh_token: string } {
-    const { secret, expiry } = getRequiredConfigVars('access');
-    const access_token = jwt.sign({ user: user._id }, secret, { expiresIn: expiry });
+    token_type: AuthTokenType
+): Promise<{ access_token: string; refresh_token: string }> {
+    const { secret, expiry } = getJWTConfigVariables(token_type);
 
-    const refresh_token = v4();
-
-    await AuthCode.create({ user: user._id, code: refresh_token });
+    const access_token = jwt.sign(user, secret, { expiresIn: expiry });
+    const refresh_token = jwt.sign(user, config.JWT_REFRESH_SECRET, {
+        expiresIn: config.JWT_REFRESH_EXP,
+    });
 
     return { access_token, refresh_token };
 }
