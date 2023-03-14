@@ -1,26 +1,57 @@
+import mongoose from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import { IUser, User } from '../models/user.model';
 import { BadRequestError } from '../utils/errors';
-import mongoose from 'mongoose';
 import { Password } from '../models/password.model';
 import { IStatus } from '../models/types/status.types';
+import { getAuthCodes, getAuthTokens } from '../services/auth.service';
+import { sendEmail } from '../services/email.service';
+import { Email } from '../types';
 
-function handleUnverifiedUser(unverified_user: IUser & { status: IStatus }) {
-    return async function (req: Request, res: Response, next: NextFunction) {
-        // Handle unverified user
-        // Get verificateion code
-        // Send verification email
-        // Get access token
-    };
-}
+/**
+ * Handle unverified user
+ *
+ * @description Sends verification email and returns access token
+ *
+ * @param unverified_user  User with unverified email address
+ *
+ * @returns { access_token: string}
+ */
+async function handleUnverifiedUser(unverified_user: IUser & { status: IStatus })
+    : Promise<{ access_token: string; }> {
+    // Get verificateion code
+    const { verification_code }: { verification_code?: number }
+        = await getAuthCodes(unverified_user, 'verification');
 
+    // Send verification email
+    sendEmail({
+        to: 'molunorichie@gmail.com' as Email,
+        subject: 'Verify your email address',
+        text: `Your verification code is ${verification_code}`,
+    });
+
+    // Get access token
+    const { access_token } = await getAuthTokens(unverified_user, 'access');
+
+    return { access_token };
+};
+
+/**
+ * Handle existing user
+ *
+ * @description Handles existing user
+ *
+ * @param existing_user  Existing user
+ *
+ * @returns {void}
+ * */
 function handleExistingUser(existing_user: IUser & { status: IStatus }) {
     return async function (req: Request, res: Response, next: NextFunction) {
         // Handle existing user
 
         if (!existing_user.status.isVerified) {
             // Handle unverified user
-            const { access_token } = await handleUnverifiedUser(existing_user)(req, res, next);
+            const { access_token } = await handleUnverifiedUser(existing_user)
 
             res.status(200).json({
                 status: 'success',
