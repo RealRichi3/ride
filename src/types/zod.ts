@@ -19,4 +19,6 @@ export const userSignupSchema = z.object({
     role: z.enum(['EndUser', 'Admin', 'SuperAdmin']),
 });
 
-export type Password = z.infer<typeof passwordSchema>;
+export const EmailType = z.string().email();
+
+export type PasswordType = z.infer<typeof passwordSchema>;
