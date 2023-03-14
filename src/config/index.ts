@@ -1,25 +1,25 @@
-import { NodeENV } from "../types";
+import { NodeENV } from '../types';
 
-export const MONGO_URI : string = process.env.MONGO_URI as string,
-    MONGO_URI_TEST : string = process.env.MONGO_URI_TEST as string,
-    MONGO_URI_DEV : string = process.env.MONGO_URI_DEV as string,
-    MONGO_URI_PROD : string = process.env.MONGO_URI_PROD as string;
+export const MONGO_URI: string = process.env.MONGO_URI as string,
+    MONGO_URI_TEST: string = process.env.MONGO_URI_TEST as string,
+    MONGO_URI_DEV: string = process.env.MONGO_URI_DEV as string,
+    MONGO_URI_PROD: string = process.env.MONGO_URI_PROD as string;
 
-export const PORT : number = process.env.PORT as unknown as number || 5555;
+export const PORT: number = (process.env.PORT as unknown as number) || 5555;
 
 /* JWT TOKENS */
-export const JWT_SECRET = process.env.JWT_ACCESS_SECRET,
-    JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET,
-    JWT_SECRET_EXP = process.env.JWT_ACCESS_EXP,
-    JWT_ACCESS_EXP = process.env.JWT_ACCESS_EXP,
-    JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET,
-    JWT_REFRESH_EXP = process.env.JWT_REFRESH_EXP,
-    JWT_PASSWORDRESET_SECRET = process.env.JWT_PASSWORDRESET_SECRET,
-    JWT_PASSWORDRESET_EXP = process.env.JWT_PASSWORDRESET_EXP,
-    JWT_EMAILVERIFICATION_SECRET = process.env.JWT_EMAILVERIFICATION_SECRET,
-    JWT_EMAILVERIFICATION_EXP = process.env.JWT_EMAILVERIFICATION_EXP,
-    JWT_SUPERADMINACTIVATION_SECRET = process.env.JWT_SUPERADMINACTIVATION_SECRET,
-    JWT_SUPERADMINACTIVATION_EXP = process.env.JWT_SUPERADMINACTIVATION_EXP;
+export const JWT_SECRET: string = process.env.JWT_ACCESS_SECRET as string,
+    JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET as string,
+    JWT_SECRET_EXP: string = process.env.JWT_ACCESS_EXP as string,
+    JWT_ACCESS_EXP: string = process.env.JWT_ACCESS_EXP as string,
+    JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET as string,
+    JWT_REFRESH_EXP: string = process.env.JWT_REFRESH_EXP as string,
+    JWT_PASSWORDRESET_SECRET: string = process.env.JWT_PASSWORDRESET_SECRET as string,
+    JWT_PASSWORDRESET_EXP: string = process.env.JWT_PASSWORDRESET_EXP as string,
+    JWT_EMAILVERIFICATION_SECRET: string = process.env.JWT_EMAILVERIFICATION_SECRET as string,
+    JWT_EMAILVERIFICATION_EXP: string = process.env.JWT_EMAILVERIFICATION_EXP as string,
+    JWT_SUPERADMINACTIVATION_SECRET: string = process.env.JWT_SUPERADMINACTIVATION_SECRET as string,
+    JWT_SUPERADMINACTIVATION_EXP: string = process.env.JWT_SUPERADMINACTIVATION_EXP as string;
 
 /* EMAIL and OAUTH2*/
 export const EMAIL_HOST = process.env.EMAIL_HOST,
@@ -41,4 +41,4 @@ export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 
 /* Node Environment */
-export const NODE_ENV : NodeENV = process.env.NODE_ENV as NodeENV;
+export const NODE_ENV: NodeENV = process.env.NODE_ENV as NodeENV;
