@@ -60,8 +60,8 @@ function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType): {
  * @returns
  */
 export async function getAuthCodes(
-    code_type: AuthCodeType,
-    user: IUser | mongoose.Types.ObjectId
+    user: IUser | mongoose.Types.ObjectId,
+    code_type: AuthCodeType
 ): Promise<IAuthCode> {
     const random_number = Math.floor(100000 + Math.random() * 900000);
     let verification_code: number, password_reset_code: number;
