@@ -34,7 +34,7 @@ async function handleUnverifiedUser(unverified_user: IUser & { status: IStatus }
     const { access_token } = await getAuthTokens(unverified_user, 'access');
 
     return { access_token };
-};
+}
 
 /**
  * Handle existing user
@@ -61,7 +61,7 @@ function handleExistingUser(existing_user: IUser & { status: IStatus }) {
                     access_token,
                 },
             });
-        } else next(new BadRequestError('User already exists'));
+        } else next(new BadRequestError('User already exists, please verify your account'));
     };
 }
 
@@ -73,6 +73,8 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
     const existing_user: IUser | null = await User.findOne({ email }).populate('status');
     if (existing_user) {
         // Handle existing user
+        await handleExistingUser(existing_user.toObject())(req, res, next);
+        return
     }
 
     // Create new user in session
@@ -90,6 +92,7 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
     await Password.create({ user: user._id, password });
 
     // Get access token
+    const { access_token } = await handleUnverifiedUser(user.toObject());
 
     // Send response
     res.status(200).json({
@@ -97,6 +100,7 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
         message: 'User created successfully',
         data: {
             user,
+            access_token
         },
     });
 };
