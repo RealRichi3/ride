@@ -65,6 +65,21 @@ function handleExistingUser(existing_user: IUser & { status: IStatus }) {
     };
 }
 
+/**
+ * User signup
+ * 
+ * @description Creates a new user
+ * 
+ * @param { email: string, firstname: string, 
+ *          lastname: string, password: string, 
+ *          role: 'EndUser', 'Admin', 'SuperAdmin'} | Users details
+ *  
+ * @throws { BadRequestError } If user already exists
+ * @throws { BadRequestError } If user is not created
+ * @throws { BadRequestError } If user is not verified
+ * 
+ * @returns { user: IUser, access_token: string }
+ * */
 const userSignup = async (req: Request, res: Response, next: NextFunction) => {
     const { email, firstname, lastname, password, role } = req.body;
     const user_info = { email, firstname, lastname, password, role };
@@ -87,8 +102,10 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
         session.endSession();
     });
 
+    // If user is not created throw error
     if (!user) throw new BadRequestError('An error occurred');
 
+    // Create password
     await Password.create({ user: user._id, password });
 
     // Get access token
