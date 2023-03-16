@@ -2,15 +2,15 @@ import * as z from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { routerSchemas } from '../types';
 
-interface ValidationSchemas {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: z.ZodObject<any>;
-}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TValidationSchemas = Map<string, z.ZodObject<any>>;
 
 // Define the validation schemas for each route
-const validation_schemas: ValidationSchemas = {
-    '/auth/signup/enduser': routerSchemas.userSignup,
-};
+const validation_schemas: TValidationSchemas = new Map([
+    ['POST /auth/signup/enduser', routerSchemas.userSignup],
+    ['GET /auth/verificationemail', routerSchemas.resendVerificationEmail],
+]);
 
 /**
  * This function is used to validate the request body against a zod schema.
@@ -24,9 +24,8 @@ const validation_schemas: ValidationSchemas = {
  * @throws {Error} - if the validation schema for the request path is not defined.
  */
 function zodValidator(req: Request, res: Response, next: NextFunction): void {
-    const path = req.path;
-    console.log(path)
-    const validation_schema = validation_schemas[req.path];
+    const path = `${req.method} ${req.path}`;
+    const validation_schema = validation_schemas.get(path);
 
     if (!validation_schema) {
         throw new Error(`Validation schema for ${path} not defined`);
