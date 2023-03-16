@@ -1,4 +1,4 @@
-import { IUser } from '../models/user.model';
+import { IUser, User } from '../models/user.model';
 import { AuthCode } from '../models/auth.model';
 import { NotFoundError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
@@ -27,9 +27,12 @@ function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType): {
 } {
     switch (config_type) {
         case 'access':
+            console.log(config.JWT_ACCESS_SECRET);
+            console.log(config.JWT_ACCESS_EXP);
             return { secret: config.JWT_ACCESS_SECRET, expiry: config.JWT_ACCESS_EXP };
 
         case 'refresh':
+            console.log('sdfasd;lfkjasldkjf');
             return { secret: config.JWT_REFRESH_SECRET, expiry: config.JWT_REFRESH_EXP };
 
         case 'password_reset':
@@ -115,18 +118,26 @@ export async function getAuthCodes(
  *
  * @param {MongooseDocument | mongoose.Types.ObjectId } user
  * @param {AuthTokenType} token_type
- * @returns
+ * @returns {Promise<{ access_token: string; refresh_token: string | undefined }>
  */
 export async function getAuthTokens(
-    user: IUser | mongoose.Types.ObjectId,
+    user: IUser,
     token_type: AuthTokenType
-): Promise<{ access_token: string; refresh_token: string }> {
+): Promise<{ access_token: string; refresh_token: string | undefined }> {
     const { secret, expiry } = getJWTConfigVariables(token_type);
 
-    const access_token = jwt.sign(user, secret, { expiresIn: expiry });
-    const refresh_token = jwt.sign(user, config.JWT_REFRESH_SECRET, {
-        expiresIn: config.JWT_REFRESH_EXP,
+    // Access token usecase may vary, so we can't use the same
+    // secret for both access and refresh tokens
+    const access_token = jwt.sign(user.toObject(), secret, { expiresIn: expiry });
+    const refresh_token = jwt.sign(user.toObject(), config.JWT_REFRESH_SECRET, {
+        expiresIn: '7d',
     });
 
-    return { access_token, refresh_token };
+    return {
+        access_token,
+        // If the secret is the same as the access token secret,
+        // i.e the token is meant for post authentication
+        // then return the refresh token, else return undefined
+        refresh_token: secret == config.JWT_ACCESS_SECRET ? refresh_token : undefined,
+    };
 }

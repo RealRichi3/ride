@@ -59,12 +59,10 @@ user_schema.pre('validate', async function (next) {
         status.isActive = this.role === 'EndUser' ? true : false;
 
         // Activate and verify user if in development mode
-        if (NODE_ENV == 'dev') {
-            status.isActive = true;
-            status.isVerified = true;
-        }
+        // if (NODE_ENV == 'dev') [status.isActive, status.isVerified] = [true, true];
 
         await status.save()
+        console.log(status)
         await AuthCode.create({ user: this._id });
     }
 
