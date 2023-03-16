@@ -9,7 +9,7 @@ interface ValidationSchemas {
 
 // Define the validation schemas for each route
 const validation_schemas: ValidationSchemas = {
-    '/signup/enduser': zCustomSchemas.userSignupSchema,
+    '/auth/signup/enduser': zCustomSchemas.userSignupSchema,
 };
 
 /**
@@ -25,6 +25,7 @@ const validation_schemas: ValidationSchemas = {
  */
 function zodValidator(req: Request, res: Response, next: NextFunction): void {
     const path = req.path;
+    console.log(path)
     const validation_schema = validation_schemas[req.path];
 
     if (!validation_schema) {

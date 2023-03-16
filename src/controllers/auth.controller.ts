@@ -65,8 +65,8 @@ async function handleExistingUser(
         existing_user.status.isVerified
             ? next(new BadRequestError('Email belongs to an existing user'))
             : await handleUnverifiedUser(existing_user, res);
-    
-    return response as  Response | NextFunction;
+
+    return response as Response | NextFunction;
 }
 
 /**
