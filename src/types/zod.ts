@@ -19,6 +19,10 @@ export const userSignup = z.object({
     role: z.enum(['EndUser', 'Admin', 'SuperAdmin']),
 });
 
+export const resendVerificationEmail = z.object({
+    email: z.string().email(),
+});
+
 export const EmailType = z.string().email();
 
 export type PasswordType = z.infer<typeof passwordSchema>;
