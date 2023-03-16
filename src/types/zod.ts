@@ -11,7 +11,7 @@ const passwordSchema = z
     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
     .regex(/[0-9]/, { message: 'Password must contain at least one digit' });
 
-export const userSignupSchema = z.object({
+export const userSignup = z.object({
     email: z.string().email(),
     firstname: z.string(),
     lastname: z.string(),

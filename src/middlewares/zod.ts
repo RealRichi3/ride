@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { zCustomSchemas } from '../types';
+import { routerSchemas } from '../types';
 
 interface ValidationSchemas {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,7 +9,7 @@ interface ValidationSchemas {
 
 // Define the validation schemas for each route
 const validation_schemas: ValidationSchemas = {
-    '/auth/signup/enduser': zCustomSchemas.userSignupSchema,
+    '/auth/signup/enduser': routerSchemas.userSignup,
 };
 
 /**

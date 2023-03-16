@@ -1,4 +1,4 @@
-import * as zCustomSchemas from './zod';
+import * as routerSchemas from './zod';
 import { MongoServerError } from 'mongodb';
 
 type MongoDuplicateKeyError = MongoServerError & {
@@ -11,4 +11,4 @@ type NodeENV = 'dev' | 'test' | 'prod';
 
 type Email = string & { __brand: 'email' };
 
-export { MongoDuplicateKeyError, zCustomSchemas, NodeENV, Email };
+export { MongoDuplicateKeyError,  routerSchemas, NodeENV, Email };
