@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { userSignup } from '../controllers/auth.controller';
-import zodValidator from '../middlewares/zod';
+import { resendVerificationEmail, userSignup } from '../controllers/auth.controller';
 
 const router = Router();
 
-router.post('/signup/enduser', zodValidator, userSignup);
+
+router
+    .post('/signup/enduser', userSignup)
+    .get('/verificationemail', resendVerificationEmail)
 
 export default router;
