@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import * as config from '../config';
 import { IAuthCode } from '../models/types/auth.types';
 import { AuthTokenType, AuthCodeType } from '../types';
+import mongoose from 'mongoose';
 
 
 
@@ -60,7 +61,7 @@ export function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType)
  * @returns
  */
 export async function getAuthCodes(
-    user: IUser | mongoose.Types.ObjectId,
+    user: IUser,
     code_type: AuthCodeType
 ): Promise<IAuthCode> {
     const random_number = Math.floor(100000 + Math.random() * 900000);
