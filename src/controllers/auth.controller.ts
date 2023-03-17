@@ -42,7 +42,7 @@ async function handleUnverifiedUser(
         status: 'success',
         message: 'Verification code sent to user email',
         data: {
-            user: unverified_user,
+            user: { ...unverified_user.toJSON(), status: undefined },
             access_token,
         },
     });
