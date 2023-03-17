@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { BadRequestError, ForbiddenError, UnauthenticatedError } from '../utils/errors';
+import { ForbiddenError, UnauthenticatedError } from '../utils/errors';
 import { getAuthTokens, getJWTConfigVariables } from '../services/auth.service';
 import { AuthTokenType, IRequestWithUser, UserWithStatus } from '../types';
 import * as config from '../config';
@@ -7,6 +7,16 @@ import * as jwt from 'jsonwebtoken';
 import { IUser } from '../models/user.model';
 import { BlacklistedToken } from '../models/auth.model';
 
+/**
+ * Exchange Auth Tokens
+ * 
+ * @description Exchange refresh token for new authentication tokens
+ * 
+ * @param req 
+ * @param res
+ *  
+ * @returns { access_token, refresh_token} 
+ */
 async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
     const { access_token, refresh_token } = await getAuthTokens(req.user as IUser, 'access')
 
@@ -20,8 +30,17 @@ async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
     })
 }
 
+/**
+ * Basic Auth
+ * 
+ * @description Middleware to validate requests made to protected routes
+ * 
+ * @param token_type:  Type of validation 
+ * 
+ * @returns 
+ */
 const basicAuth = function (token_type: AuthTokenType | undefined) {
-    return async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    return async (req: Request & { user?: UserWithStatus }, res: Response, next: NextFunction) => {
         // Get authorization header
         const auth_header = req.headers.authorization;
 
@@ -54,7 +73,7 @@ const basicAuth = function (token_type: AuthTokenType | undefined) {
          * 
          *  Some Some requests do not require users account to be activated
          *  examples of these request are email verification, password reset
-         *  */ 
+         */
         if (user?.status.isActive && !token_type) {
             return next(new ForbiddenError('Unauthorized access, users account is not active'))
         }
