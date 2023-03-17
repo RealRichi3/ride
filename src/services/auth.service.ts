@@ -3,13 +3,10 @@ import { AuthCode } from '../models/auth.model';
 import { NotFoundError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
-import { v4 } from 'uuid';
-import mongoose, { Mongoose } from 'mongoose';
 import { IAuthCode } from '../models/types/auth.types';
+import { AuthTokenType, AuthCodeType } from '../types';
 
-type AuthTokenType = 'access' | 'refresh';
 
-type AuthCodeType = 'password_reset' | 'verification' | 'activation' | 'deactivation';
 
 /**
  * Generate Required Config Variables
@@ -21,7 +18,7 @@ type AuthCodeType = 'password_reset' | 'verification' | 'activation' | 'deactiva
  *
  * @throws {Error} if config_type is not 'access', 'refresh', 'password_reset' or 'verification'
  */
-function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType): {
+export function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType): {
     secret: string;
     expiry: string;
 } {
