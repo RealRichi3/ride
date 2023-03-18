@@ -6,7 +6,7 @@ import * as config from '../config';
 import * as jwt from 'jsonwebtoken';
 import { IUser } from '../models/user.model';
 import { BlacklistedToken } from '../models/auth.model';
-import { AuthenticatedAsyncController, AuthenticatedRequest } from '../types/global.d';
+import { AuthenticatedAsyncController, AuthenticatedRequest } from '../types/global';
 import { IStatus } from '../models/types/status.types';
 
 /**

@@ -1,7 +1,7 @@
 import { Router, Application } from 'express';
 
 import authRoute from './auth.routes';
-import zodValidator from '../middlewares/zod';
+import zodValidator from '../middlewares/routerSchemaValidator';
 
 export default function routeHandler(app: Application) {
     const router = Router();

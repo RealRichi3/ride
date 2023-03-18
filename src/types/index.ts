@@ -1,6 +1,6 @@
 import { IStatus } from '../models/types/status.types';
 import { IUser } from '../models/user.model';
-import * as routerSchemas from './zod';
+import * as routerSchemas from './routerschemas';
 import { MongoServerError } from 'mongodb';
 import { Request  } from 'express';
 
@@ -29,10 +29,6 @@ type AuthCodeType = 'password_reset' | 'verification' | 'activation' | 'deactiva
 interface IRequestWithUser extends Request {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user? : UserWithStatus
-}
-
-interface AuthenticatedRequest extends Request {
-    user: UserWithStatus
 }
 
 export { 

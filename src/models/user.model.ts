@@ -1,7 +1,6 @@
 import mongoose, { Schema, Model } from 'mongoose';
 import { Status } from './status.model';
 import { IUser } from './types/user.types';
-import { NODE_ENV } from '../config';
 import { AuthCode } from './auth.model';
 
 const options = { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } };
