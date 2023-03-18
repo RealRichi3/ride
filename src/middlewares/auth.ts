@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError, UnauthenticatedError } from '../utils/errors';
 import { getAuthTokens, getJWTConfigVariables } from '../services/auth.service';
-import { AuthTokenType, IRequestWithUser, UserWithStatus } from '../types';
+import { AuthCodeType, AuthTokenType, IRequestWithUser, UserWithStatus } from '../types';
 import * as config from '../config';
 import * as jwt from 'jsonwebtoken';
 import { IUser } from '../models/user.model';
 import { BlacklistedToken } from '../models/auth.model';
+import { AuthenticatedAsyncController, AuthenticatedRequest } from '../types/global.d';
+import { IStatus } from '../models/types/status.types';
 
 /**
  * Exchange Auth Tokens
@@ -39,7 +41,7 @@ async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
  * 
  * @returns 
  */
-const basicAuth = function (token_type: AuthTokenType | undefined) {
+const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined) {
     return async (req: Request & { user?: UserWithStatus }, res: Response, next: NextFunction) => {
         // Get authorization header
         const auth_header = req.headers.authorization;
@@ -77,7 +79,14 @@ const basicAuth = function (token_type: AuthTokenType | undefined) {
         if (user?.status.isActive && !token_type) {
             return next(new ForbiddenError('Unauthorized access, users account is not active'))
         }
+
+        return next(req as AuthenticatedRequest)
     };
 }
 
-export { basicAuth }
+function withAuthentication(handler : AuthenticatedAsyncController) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        handler(req as AuthenticatedRequest, res, next)
+    }
+}
+export { basicAuth, withAuthentication }

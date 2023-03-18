@@ -4,12 +4,13 @@ import { routerSchemas } from '../types';
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TValidationSchemas = Map<string, z.ZodObject<any>>;
+type TValidationSchemas = Map<string, Zod.ZodSchema<any>>;
 
 // Define the validation schemas for each route
 const validation_schemas: TValidationSchemas = new Map([
     ['POST /auth/signup/enduser', routerSchemas.userSignup],
     ['GET /auth/verificationemail', routerSchemas.resendVerificationEmail],
+    // ['POST /auth/verifyemail', routerSchemas.verifyUserEmail],
 ]);
 
 /**
@@ -25,6 +26,7 @@ const validation_schemas: TValidationSchemas = new Map([
  */
 function zodValidator(req: Request, res: Response, next: NextFunction): void {
     const path = `${req.method} ${req.path}`;
+    console.log(path)
     const validation_schema = validation_schemas.get(path);
 
     if (!validation_schema) {

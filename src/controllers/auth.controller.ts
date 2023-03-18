@@ -7,7 +7,9 @@ import { IStatus } from '../models/types/status.types';
 import { getAuthCodes, getAuthTokens } from '../services/auth.service';
 import { sendEmail } from '../services/email.service';
 import { Email, WithPopulated, UserWithStatus } from '../types';
-import { Status } from '../models/status.model';
+import { AuthenticatedRequest } from '../types/global';
+import { AuthCode, BlacklistedToken } from '../models/auth.model';
+import { IAuthCode } from '../models/types/auth.types';
 
 /**
  * Handle unverified user
@@ -42,7 +44,7 @@ async function handleUnverifiedUser(
         status: 'success',
         message: 'Verification code sent to user email',
         data: {
-            user: { ...unverified_user.toJSON(), status: undefined },
+            user: { ...unverified_user, status: undefined },
             access_token,
         },
     });
@@ -145,4 +147,37 @@ const resendVerificationEmail = async (req: Request, res: Response, next: NextFu
         : await handleUnverifiedUser(user, res);
 }
 
-export { userSignup, resendVerificationEmail };
+const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const verification_code: number = req.body.verification_code;
+
+    // Get user
+    const user = req.user
+
+    if (user.status.isVerified) return next(new BadRequestError('User already verified'));
+
+    // Check if verification code is correct
+    const auth_code = await AuthCode.findOne({ user: user._id, });
+
+    if (auth_code?.verification_code !== verification_code) {
+        return next(new BadRequestError('Invalid verification code'))
+    }
+
+    // Verify user
+    await user.status.updateOne({ isVerified: true });
+
+    await auth_code.updateOne({ verification_code: undefined })
+
+    // Blacklist access token
+    await BlacklistedToken.create({ token: req.headers.authorization.split(' ')[1] })
+
+    res.status(200).send({
+        status: 'success',
+        message: 'User verified',
+        data: {
+            user: { ...user, status: undefined },
+        },
+    });
+}
+
+
+export { userSignup, resendVerificationEmail, verifyUserEmail };

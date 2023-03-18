@@ -23,6 +23,10 @@ export const resendVerificationEmail = z.object({
     email: z.string().email(),
 });
 
+export const verifyUserEmail = z.object({
+    verification_code: z.number(),
+});
+
 export const EmailType = z.string().email();
 
 export type PasswordType = z.infer<typeof passwordSchema>;
