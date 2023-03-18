@@ -1,6 +1,21 @@
-import * as z from 'zod';
+import { UserWithStatus } from ".";
+import { Request, Response, NextFunction } from "express";
+import * as z from "zod";
 
-const passwordSchema = z
+export interface AuthenticatedRequest extends Request {
+    headers: {
+        authorization: string
+    },
+    user: UserWithStatus
+}
+
+export interface AuthenticatedAsyncController {
+    (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void>
+}
+
+export const EmailType = z.string().email();
+
+export const passwordSchema = z
     .string()
     .min(8, 'Password must be at least 8 characters long')
     .max(100, 'Password cannot be longer than 100 characters')
@@ -11,18 +26,4 @@ const passwordSchema = z
     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
     .regex(/[0-9]/, { message: 'Password must contain at least one digit' });
 
-export const userSignup = z.object({
-    email: z.string().email(),
-    firstname: z.string(),
-    lastname: z.string(),
-    password: passwordSchema,
-    role: z.enum(['EndUser', 'Admin', 'SuperAdmin']),
-});
-
-export const resendVerificationEmail = z.object({
-    email: z.string().email(),
-});
-
-export const EmailType = z.string().email();
-
-export type PasswordType = z.infer<typeof passwordSchema>;
+export type TPassword = z.infer<typeof passwordSchema>;

@@ -45,9 +45,12 @@ function initExpressRouteHandler(app: Application): void {
     routeHandler(app);
     
     app.use(errorHandler);
-
+    
     app.all('*', (req: Request, res: Response, next: NextFunction) => {
-        next(new NotFoundError('Resource not found'));
+        res.status(404).send({
+            status: 'error',
+            message: 'Route not found',
+        });
     });
     
     return
