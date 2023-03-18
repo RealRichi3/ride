@@ -55,10 +55,9 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
             ? getJWTConfigVariables(token_type).secret
             : config.JWT_ACCESS_SECRET;
 
-        const jwt_token = auth_header.split(' ')[1],
-            payload = jwt.verify(jwt_token, secret) as string;
-
-        req.user = payload ? JSON.parse(payload) as UserWithStatus : undefined
+        const jwt_token = auth_header.split(' ')[1];
+        const payload = jwt.verify(jwt_token, secret) as string;
+        req.user = payload ? Object(payload) as UserWithStatus : undefined
         const user = req.user
 
         // Check if access token has been blacklisted
@@ -80,7 +79,8 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
             return next(new ForbiddenError('Unauthorized access, users account is not active'))
         }
 
-        return next(req as AuthenticatedRequest)
+
+        return next()
     };
 }
 
