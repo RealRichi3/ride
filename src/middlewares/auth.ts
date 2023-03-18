@@ -86,7 +86,7 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
 
 function withAuthentication(handler : AuthenticatedAsyncController) {
     return async (req: Request, res: Response, next: NextFunction) => {
-        handler(req as AuthenticatedRequest, res, next)
+        return handler(req as AuthenticatedRequest, res, next)
     }
 }
 export { basicAuth, withAuthentication }

@@ -104,7 +104,7 @@ export async function getAuthCodes(
     if (!users_auth_code) throw new NotFoundError('User not found');
 
     console.log(users_auth_code)
-    return users_auth_code; 
+    return users_auth_code;
 }
 
 /**
@@ -118,16 +118,21 @@ export async function getAuthCodes(
  */
 export async function getAuthTokens(
     user: IUser,
-    token_type: AuthTokenType
+    token_type: AuthTokenType | AuthCodeType
 ): Promise<{ access_token: string; refresh_token: string | undefined }> {
     const { secret, expiry } = getJWTConfigVariables(token_type);
 
+    console.log(secret)
+    
     // Access token usecase may vary, so we can't use the same
     // secret for both access and refresh tokens
+    user = Object(user.toObject())
     const access_token = jwt.sign(user, secret, { expiresIn: expiry });
     const refresh_token = jwt.sign(user, config.JWT_REFRESH_SECRET, {
-        expiresIn: '7d',
+        expiresIn: config.JWT_REFRESH_EXP,
     });
+
+    console.log(access_token)
 
     return {
         access_token,

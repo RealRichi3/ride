@@ -10,6 +10,7 @@ import { Email, WithPopulated, UserWithStatus } from '../types';
 import { AuthenticatedRequest } from '../types/global';
 import { AuthCode, BlacklistedToken } from '../models/auth.model';
 import { IAuthCode } from '../models/types/auth.types';
+import { Status } from '../models/status.model';
 
 /**
  * Handle unverified user
@@ -38,13 +39,15 @@ async function handleUnverifiedUser(
     });
 
     // Get access token
-    const { access_token } = await getAuthTokens(unverified_user, 'access');
+    const { access_token } = await getAuthTokens(unverified_user, 'verification');
+
+    const user = Object.assign(unverified_user, { status: undefined });
 
     return res.status(200).send({
         status: 'success',
         message: 'Verification code sent to user email',
         data: {
-            user: { ...unverified_user, status: undefined },
+            user,
             access_token,
         },
     });
@@ -163,7 +166,7 @@ const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: N
     }
 
     // Verify user
-    await user.status.updateOne({ isVerified: true });
+    await Status.findOneAndUpdate({ user: user._id }, { isVerified: true });
 
     await auth_code.updateOne({ verification_code: undefined })
 
