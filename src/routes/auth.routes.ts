@@ -14,7 +14,7 @@ router
         resendVerificationEmail
     )
     .post(
-        '/verifyemail/:id',
+        '/verifyemail/',
         schemaValidator(schema.verifyUserEmail),
         basicAuth('verification'),
         withAuthentication(verifyUserEmail)

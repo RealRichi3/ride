@@ -18,7 +18,9 @@ export const resendVerificationEmail = z.object({
 });
 
 export const verifyUserEmail = z.object({
-    verification_code: z.number(),
+    body: z.object({
+        verification_code: z.number()
+    })
 });
 
 

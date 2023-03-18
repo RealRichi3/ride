@@ -22,7 +22,7 @@ function routerSchemaValidator(schema: z.AnyZodObject) {
 
         req.body = body;
 
-        return next();
+        next();
     }
 }
 
