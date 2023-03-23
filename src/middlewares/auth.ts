@@ -21,7 +21,7 @@ import logger from './winston';
  * @returns { access_token, refresh_token} 
  */
 async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
-    const { access_token, refresh_token } = await getAuthTokens(req.user as IUser, 'access')
+    const { access_token, refresh_token } = await getAuthTokens(req.user as UserWithStatus, 'access')
 
     return res.status(200).send({
         status: 'success',
@@ -44,7 +44,6 @@ async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
  */
 const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined) {
     return async (req: Request & { user?: UserWithStatus }, res: Response, next: NextFunction) => {
-        logger.info('inside the basic auth middleware')
         // Get authorization header
         const auth_header = req.headers.authorization;
 
@@ -65,8 +64,8 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
         // Check if access token has been blacklisted
         // TODO: Use redis for blacklisted tokens
         const tokenIsBlacklisted = await BlacklistedToken.findOne({ token: jwt_token })
-        if (tokenIsBlacklisted) return new ForbiddenError('JWT token expired');
-
+        if (tokenIsBlacklisted) return next(new ForbiddenError('JWT token expired'));
+        
         // Check if user wants to exchange or get new auth tokens
         if (req.method == 'GET'
             && req.path == '/authtoken'

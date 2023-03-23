@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { NodeENV } from './types';
+import winston from 'winston/lib/winston/config';
 
 /**
  * Set env config based on current node environment

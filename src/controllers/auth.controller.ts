@@ -11,6 +11,7 @@ import { AuthenticatedRequest } from '../types/global';
 import { AuthCode, BlacklistedToken } from '../models/auth.model';
 import { IAuthCode } from '../models/types/auth.types';
 import { Status } from '../models/status.model';
+import logger from '../middlewares/winston';
 
 /**
  * Handle unverified user
@@ -26,6 +27,8 @@ import { Status } from '../models/status.model';
 async function handleUnverifiedUser(
     unverified_user: UserWithStatus, res: Response)
     : Promise<Response> {
+
+    console.log(unverified_user)
 
     // Get verificateion code
     const { verification_code }: { verification_code?: number }
@@ -66,7 +69,7 @@ async function handleUnverifiedUser(
 async function handleExistingUser(
     existing_user: UserWithStatus, res: Response, next: NextFunction)
     : Promise<Response | NextFunction> {
-
+    
     const response =
         existing_user.status?.isVerified
             ? next(new BadRequestError('Email belongs to an existing user'))
@@ -120,7 +123,8 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
     await Password.create({ user: user._id, password });
 
     // Get access token
-    return await handleUnverifiedUser(user.toObject(), res);
+    const populated_user : UserWithStatus = await user.populate('status')
+    return await handleUnverifiedUser(populated_user.toObject(), res);
 };
 
 /**

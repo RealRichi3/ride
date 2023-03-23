@@ -122,8 +122,6 @@ export async function getAuthTokens(
 ): Promise<{ access_token: string; refresh_token: string | undefined }> {
     const { secret, expiry } = getJWTConfigVariables(token_type);
 
-    console.log(secret)
-    console.log(typeof(user))
     // Access token usecase may vary, so we can't use the same
     // secret for both access and refresh tokens
     // user = user.toObject() ? user : Object(user.toObject())
