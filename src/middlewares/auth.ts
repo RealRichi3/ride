@@ -8,6 +8,7 @@ import { IUser } from '../models/user.model';
 import { BlacklistedToken } from '../models/auth.model';
 import { AuthenticatedAsyncController, AuthenticatedRequest } from '../types/global';
 import { IStatus } from '../models/types/status.types';
+import logger from './winston';
 
 /**
  * Exchange Auth Tokens
@@ -43,6 +44,7 @@ async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
  */
 const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined) {
     return async (req: Request & { user?: UserWithStatus }, res: Response, next: NextFunction) => {
+        logger.info('inside the basic auth middleware')
         // Get authorization header
         const auth_header = req.headers.authorization;
 
@@ -78,7 +80,6 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
         if (user?.status.isActive && !token_type) {
             return next(new ForbiddenError('Unauthorized access, users account is not active'))
         }
-
 
         return next()
     };
