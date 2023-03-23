@@ -8,6 +8,7 @@ import { IUser } from '../models/user.model';
 import { BlacklistedToken } from '../models/auth.model';
 import { AuthenticatedAsyncController, AuthenticatedRequest } from '../types/global';
 import { IStatus } from '../models/types/status.types';
+import logger from './winston';
 
 /**
  * Exchange Auth Tokens
@@ -20,7 +21,7 @@ import { IStatus } from '../models/types/status.types';
  * @returns { access_token, refresh_token} 
  */
 async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
-    const { access_token, refresh_token } = await getAuthTokens(req.user as IUser, 'access')
+    const { access_token, refresh_token } = await getAuthTokens(req.user as UserWithStatus, 'access')
 
     return res.status(200).send({
         status: 'success',
@@ -63,8 +64,8 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
         // Check if access token has been blacklisted
         // TODO: Use redis for blacklisted tokens
         const tokenIsBlacklisted = await BlacklistedToken.findOne({ token: jwt_token })
-        if (tokenIsBlacklisted) return new ForbiddenError('JWT token expired');
-
+        if (tokenIsBlacklisted) return next(new ForbiddenError('JWT token expired'));
+        
         // Check if user wants to exchange or get new auth tokens
         if (req.method == 'GET'
             && req.path == '/authtoken'
@@ -78,7 +79,6 @@ const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined
         if (user?.status.isActive && !token_type) {
             return next(new ForbiddenError('Unauthorized access, users account is not active'))
         }
-
 
         return next()
     };
