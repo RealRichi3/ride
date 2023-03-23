@@ -4,7 +4,7 @@ import { NotFoundError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
 import { IAuthCode } from '../models/types/auth.types';
-import { AuthTokenType, AuthCodeType } from '../types';
+import { AuthTokenType, AuthCodeType, UserWithStatus } from '../types';
 import mongoose from 'mongoose';
 
 
@@ -117,16 +117,16 @@ export async function getAuthCodes(
  * @returns {Promise<{ access_token: string; refresh_token: string | undefined }>
  */
 export async function getAuthTokens(
-    user: IUser,
+    user: UserWithStatus,
     token_type: AuthTokenType | AuthCodeType
 ): Promise<{ access_token: string; refresh_token: string | undefined }> {
     const { secret, expiry } = getJWTConfigVariables(token_type);
 
     console.log(secret)
-    
+    console.log(typeof(user))
     // Access token usecase may vary, so we can't use the same
     // secret for both access and refresh tokens
-    user = Object(user.toObject())
+    // user = user.toObject() ? user : Object(user.toObject())
     const access_token = jwt.sign(user, secret, { expiresIn: expiry });
     const refresh_token = jwt.sign(user, config.JWT_REFRESH_SECRET, {
         expiresIn: config.JWT_REFRESH_EXP,

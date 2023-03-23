@@ -24,7 +24,7 @@ import { Status } from '../models/status.model';
  * @returns { access_token: string}
  */
 async function handleUnverifiedUser(
-    unverified_user: IUser & { status: IStatus }, res: Response)
+    unverified_user: UserWithStatus, res: Response)
     : Promise<Response> {
 
     // Get verificateion code
@@ -166,7 +166,7 @@ const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: N
     }
 
     // Verify user
-    await Status.findOneAndUpdate({ user: user._id }, { isVerified: true });
+    // await Status.findOneAndUpdate({ user: user._id }, { isVerified: true });
 
     await auth_code.updateOne({ verification_code: undefined })
 
