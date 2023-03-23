@@ -124,13 +124,10 @@ export async function getAuthTokens(
 
     // Access token usecase may vary, so we can't use the same
     // secret for both access and refresh tokens
-    // user = user.toObject() ? user : Object(user.toObject())
     const access_token = jwt.sign(user, secret, { expiresIn: expiry });
     const refresh_token = jwt.sign(user, config.JWT_REFRESH_SECRET, {
         expiresIn: config.JWT_REFRESH_EXP,
     });
-
-    console.log(access_token)
 
     return {
         access_token,

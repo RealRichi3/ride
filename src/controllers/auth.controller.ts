@@ -69,7 +69,7 @@ async function handleUnverifiedUser(
 async function handleExistingUser(
     existing_user: UserWithStatus, res: Response, next: NextFunction)
     : Promise<Response | NextFunction> {
-    
+
     const response =
         existing_user.status?.isVerified
             ? next(new BadRequestError('Email belongs to an existing user'))
@@ -123,7 +123,7 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
     await Password.create({ user: user._id, password });
 
     // Get access token
-    const populated_user : UserWithStatus = await user.populate('status')
+    const populated_user: UserWithStatus = await user.populate('status')
     return await handleUnverifiedUser(populated_user.toObject(), res);
 };
 
@@ -151,7 +151,7 @@ const resendVerificationEmail = async (req: Request, res: Response, next: NextFu
     // Check if user is unverified
     user.status?.isVerified
         ? next(new BadRequestError("User's email already verified"))
-        : await handleUnverifiedUser(user, res);
+        : await handleUnverifiedUser(user.toObject(), res);
 }
 
 const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -170,7 +170,7 @@ const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: N
     }
 
     // Verify user
-    // await Status.findOneAndUpdate({ user: user._id }, { isVerified: true });
+    await Status.findOneAndUpdate({ user: user._id }, { isVerified: true });
 
     await auth_code.updateOne({ verification_code: undefined })
 
@@ -186,5 +186,19 @@ const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: N
     });
 }
 
+const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
 
-export { userSignup, resendVerificationEmail, verifyUserEmail };
+}
+
+const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+
+}
+
+
+export {
+    userSignup, 
+    resendVerificationEmail, 
+    verifyUserEmail, 
+    forgotPassword, 
+    resetPassword
+};
