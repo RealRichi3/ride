@@ -2,7 +2,8 @@ import { IStatus } from '../models/types/status.types';
 import { IUser } from '../models/user.model';
 import * as routerSchemas from './routerschemas';
 import { MongoServerError } from 'mongodb';
-import { Request  } from 'express';
+import { Request } from 'express';
+    
 
 type MongoDuplicateKeyError = MongoServerError & {
     code: number;
@@ -22,20 +23,24 @@ type NodeENV = 'dev' | 'test' | 'prod';
 
 type Email = string & { __brand: 'email' };
 
-type AuthTokenType = 'access' | 'refresh';
-
-type AuthCodeType = 'password_reset' | 'verification' | 'activation' | 'deactivation';
+type TAuthCode = {
+    password_reset: 'password_reset_code';
+    verification: 'verification_code';
+    activation: 'activation_code';
+    deactivation: 'deactivation_code';
+} 
+type TAuthToken = 'access' | 'refresh' | keyof TAuthCode;
 
 interface IRequestWithUser extends Request {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    user? : UserWithStatus
+    user?: UserWithStatus
 }
 
-export { 
-    MongoDuplicateKeyError, 
-    routerSchemas, NodeENV, 
-    Email, WithPopulated, 
+export {
+    MongoDuplicateKeyError,
+    routerSchemas, NodeENV,
+    Email, WithPopulated,
     UserWithStatus,
-    AuthCodeType, AuthTokenType,
+    TAuthCode, TAuthToken,
     IRequestWithUser,
- };
+};

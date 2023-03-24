@@ -1,11 +1,10 @@
-import { IUser, User } from '../models/user.model';
+import { IUser } from '../models/user.model';
 import { AuthCode } from '../models/auth.model';
 import { NotFoundError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
 import { IAuthCode } from '../models/types/auth.types';
-import { AuthTokenType, AuthCodeType, UserWithStatus } from '../types';
-import mongoose from 'mongoose';
+import { TAuthToken, TAuthCode, UserWithStatus } from '../types';
 
 
 
@@ -19,7 +18,7 @@ import mongoose from 'mongoose';
  *
  * @throws {Error} if config_type is not 'access', 'refresh', 'password_reset' or 'verification'
  */
-export function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType): {
+export function getJWTConfigVariables(config_type: TAuthToken): {
     secret: string;
     expiry: string;
 } {
@@ -53,18 +52,19 @@ export function getJWTConfigVariables(config_type: AuthTokenType | AuthCodeType)
  *
  * @description Get auth codes for a user
  *
- * @param {AuthTokenType} code_type
+ * @param {TAuthToken} code_type
  * @param {MongooseDocument | mongoose.Types.ObjectId } user
  * @returns
  */
-export async function getAuthCodes(
+export async function getAuthCodes<T extends keyof TAuthCode>(
     user: IUser,
-    code_type: AuthCodeType
-): Promise<IAuthCode> {
+    code_type: T
+): Promise<{ [k in TAuthCode[T]]: number }> {
     const random_number = Math.floor(100000 + Math.random() * 900000);
-    let verification_code: number, password_reset_code: number;
-    // activation_code: number,
-    // deactivation_code: number;
+    let verification_code,
+        password_reset_code,
+        activation_code: number,
+        deactivation_code: number;
 
     let users_auth_code: IAuthCode | null;
 
@@ -76,6 +76,7 @@ export async function getAuthCodes(
                 { verification_code },
                 { new: true }
             );
+
             break;
 
         case 'password_reset':
@@ -87,15 +88,15 @@ export async function getAuthCodes(
             );
             break;
 
-        // case 'activation':
-        //     activation_code = random_number;
-        //     users_auth_code = await AuthCode.findOneAndUpdate({ user: user._id }, { activation_code }, { new: true })
-        //     break;
+        case 'activation':
+            activation_code = random_number;
+            users_auth_code = await AuthCode.findOneAndUpdate({ user: user._id }, { activation_code }, { new: true })
+            break;
 
-        // case 'deactivation':
-        //     deactivation_code = random_number;
-        //     users_auth_code = await AuthCode.findOneAndUpdate({ user: user._id }, { deactivation_code }, { new: true })
-        //     break;
+        case 'deactivation':
+            deactivation_code = random_number;
+            users_auth_code = await AuthCode.findOneAndUpdate({ user: user._id }, { deactivation_code }, { new: true })
+            break;
 
         default:
             throw new Error(`Invalid code_type: ${code_type}`);
@@ -103,8 +104,7 @@ export async function getAuthCodes(
 
     if (!users_auth_code) throw new NotFoundError('User not found');
 
-    console.log(users_auth_code)
-    return users_auth_code;
+    return users_auth_code as { [k in TAuthCode[T]]: number };
 }
 
 /**
@@ -113,24 +113,21 @@ export async function getAuthCodes(
  * @description Get auth tokens for a user i.e access token and refresh token
  *
  * @param {MongooseDocument | mongoose.Types.ObjectId } user
- * @param {AuthTokenType} token_type
+ * @param {TAuthToken} token_type
  * @returns {Promise<{ access_token: string; refresh_token: string | undefined }>
  */
 export async function getAuthTokens(
     user: UserWithStatus,
-    token_type: AuthTokenType | AuthCodeType
+    token_type: TAuthToken = 'access'
 ): Promise<{ access_token: string; refresh_token: string | undefined }> {
     const { secret, expiry } = getJWTConfigVariables(token_type);
 
     // Access token usecase may vary, so we can't use the same
     // secret for both access and refresh tokens
-    // user = user.toObject() ? user : Object(user.toObject())
     const access_token = jwt.sign(user, secret, { expiresIn: expiry });
     const refresh_token = jwt.sign(user, config.JWT_REFRESH_SECRET, {
         expiresIn: config.JWT_REFRESH_EXP,
     });
-
-    console.log(access_token)
 
     return {
         access_token,
