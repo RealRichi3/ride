@@ -286,6 +286,21 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check if password is correct
     const is_correct = user.password.comparePassword(password);
+
+    if (!is_correct) return next(new BadRequestError('Incorrect password'));
+
+    // Get access token
+    const { access_token, refresh_token } = await getAuthTokens(user.toObject(), 'access');
+
+    return res.status(200).send({
+        status: 'success',
+        message: 'User logged in',
+        data: {
+            user: { ...user.toObject(), status: undefined, password: undefined },
+            access_token,
+            refresh_token
+        },
+    });
 }
 
 const logout = async (req: Request, res: Response, next: NextFunction) => {
