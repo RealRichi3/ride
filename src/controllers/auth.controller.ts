@@ -253,7 +253,7 @@ const resetPassword = async (req: AuthenticatedRequest, res: Response, next: Nex
     if (!auth_code) return next(new BadRequestError('Invalid password reset code'));
 
     // Update password
-    const password = await Password.findOne({ user: req.user._id });
+    const password = await Password.findOne({ user: req.user._id }) as PasswordModel;
 
     password
         ? await password.updatePassword(new_password)
