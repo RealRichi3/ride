@@ -285,7 +285,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     if (!user.status.isVerified) return next(new BadRequestError('User is not verified'));
 
     // Check if password is correct
-    const is_correct = user.password.comparePassword(password);
+    const is_correct = await user.password.comparePassword(password);
 
     if (!is_correct) return next(new BadRequestError('Incorrect password'));
 
