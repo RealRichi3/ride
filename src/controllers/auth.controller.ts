@@ -271,11 +271,31 @@ const resetPassword = async (req: AuthenticatedRequest, res: Response, next: Nex
     });
 }
 
+const login = async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    // Get user
+    type UserWithStatusAndPassword = UserWithStatus & { password: PasswordModel }
+    const user: UserWithStatusAndPassword | null = await User.findOne({ email }).populate('status password')
+
+    // Check if user exists
+    if (!user) return next(new BadRequestError('User does not exist'));
+
+    // Check if user is verified
+    if (!user.status.isVerified) return next(new BadRequestError('User is not verified'));
+
+    // Check if password is correct
+    const is_correct = user.password.comparePassword(password);
+}
+
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+}
 
 export {
     userSignup,
     resendVerificationEmail,
     verifyUserEmail,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    login, logout
 };

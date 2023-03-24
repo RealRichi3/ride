@@ -6,10 +6,11 @@ const options = { timestamps: true, toObject: { virtuals: true }, toJSON: { virt
 
 interface IPasswordMethods {
     updatePassword(new_password: string): Promise<void>;
+    comparePassword(password: string): Promise<boolean>;
 }
-type PasswordModel = Model<IPassword, object, IPasswordMethods>
+type PasswordModel = Model<IPassword> & IPasswordMethods;
 
-const password_schema = new Schema<IPassword, PasswordModel, IPasswordMethods>(
+const password_schema = new Schema(
     {
         user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
         password: { type: String, required: true },
@@ -22,7 +23,10 @@ password_schema.method('updatePassword', async function updatePassword(new_passw
     this.password = await bcrypt.hash(new_password, salt);
     await this.save();
 })
+password_schema.method('comparePassword', async function comparePassword(password: string) {
+    return await bcrypt.compare(password, this.password);
+})
 
-const Password = model<IPassword, PasswordModel>('Password', password_schema);
+const Password: PasswordModel = model<IPassword, PasswordModel>('Password', password_schema);
 
-export { Password, IPassword, PasswordModel };
+export { Password, IPassword, PasswordModel, password_schema };

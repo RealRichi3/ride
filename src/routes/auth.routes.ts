@@ -2,7 +2,9 @@ import { Router } from 'express';
 import {
     resendVerificationEmail, userSignup,
     verifyUserEmail, forgotPassword,
-    resetPassword
+    resetPassword,
+    logout,
+    login
 } from '../controllers/auth.controller';
 import { basicAuth, withAuthentication } from '../middlewares/auth';
 import schemaValidator from '../middlewares/routerSchemaValidator';
@@ -24,6 +26,8 @@ router
         withAuthentication(verifyUserEmail)
     )
     .post('/forgotpassword', forgotPassword)
-    .patch('/resetpassword', basicAuth('password_reset'), withAuthentication(resetPassword));
+    .patch('/resetpassword', basicAuth('password_reset'), withAuthentication(resetPassword))
+    .post('/login', login)
+    .post('/logout', logout)
 
 export default router;
