@@ -197,9 +197,10 @@ const forgotPassword = async (req: Request, res: Response, next: NextFunction) =
     if (!user) return next(new BadRequestError('User does not exist'));
 
     // Get password reset code
-    const { password_reset_code }: { password_reset_code: number }
-        = await getAuthCodes<'password_reset'>(user, 'password_reset');
+    const { password_reset_code }: { password_reset_code: number } =
+        await getAuthCodes<'password_reset'>(user, 'password_reset');
 
+    console.log(password_reset_code)
     // Send password reset email
     sendEmail({
         to: email,
@@ -208,7 +209,7 @@ const forgotPassword = async (req: Request, res: Response, next: NextFunction) =
     });
 
     // Get access token
-    const { access_token }: { access_token: string } = await getAuthTokens(user, 'password_reset');
+    const { access_token }: { access_token: string } = await getAuthTokens(user.toObject(), 'password_reset');
 
     return res.status(200).send({
         status: 'success',
