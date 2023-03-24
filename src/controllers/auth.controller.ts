@@ -31,8 +31,8 @@ async function handleUnverifiedUser(
     console.log(unverified_user)
 
     // Get verificateion code
-    const { verification_code }: { verification_code?: number }
-        = await getAuthCodes(unverified_user, 'verification');
+    const { verification_code }: { verification_code: number }
+        = await getAuthCodes<'verification'>(unverified_user, 'verification');
 
     // Send verification email
     sendEmail({
@@ -143,7 +143,8 @@ const resendVerificationEmail = async (req: Request, res: Response, next: NextFu
     const email: Email = req.body.email;
 
     // Get user
-    const user: IUser & { status: IStatus } | null = await User.findOne({ email }).populate('status');
+    const user: IUser & { status: IStatus } | null
+        = await User.findOne({ email }).populate('status');
 
     // Check if user exists
     if (!user) return next(new BadRequestError('User does not exist'));
@@ -187,7 +188,24 @@ const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: N
 }
 
 const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    const email: Email = req.body.email;
 
+    // Get user
+    const user: UserWithStatus | null = await User.findOne({ email }).populate('status');
+
+    // Check if user exists
+    if (!user) return next(new BadRequestError('User does not exist'));
+
+    // Get password reset code
+    const { password_reset_code }: { password_reset_code: number }
+        = await getAuthCodes<'password_reset'>(user, 'password_reset');
+
+    // Send password reset email
+    sendEmail({
+        to: email,
+        subject: 'Reset your password',
+        text: `Your password reset code is ${password_reset_code}`,
+    });
 }
 
 const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
@@ -196,9 +214,9 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
 
 
 export {
-    userSignup, 
-    resendVerificationEmail, 
-    verifyUserEmail, 
-    forgotPassword, 
+    userSignup,
+    resendVerificationEmail,
+    verifyUserEmail,
+    forgotPassword,
     resetPassword
 };

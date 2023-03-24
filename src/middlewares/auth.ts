@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError, UnauthenticatedError } from '../utils/errors';
 import { getAuthTokens, getJWTConfigVariables } from '../services/auth.service';
-import { AuthCodeType, AuthTokenType, IRequestWithUser, UserWithStatus } from '../types';
+import { TAuthCode, TAuthToken, IRequestWithUser, UserWithStatus } from '../types';
 import * as config from '../config';
 import * as jwt from 'jsonwebtoken';
-import { IUser } from '../models/user.model';
 import { BlacklistedToken } from '../models/auth.model';
 import { AuthenticatedAsyncController, AuthenticatedRequest } from '../types/global';
 import { IStatus } from '../models/types/status.types';
@@ -42,7 +41,7 @@ async function exchangeAuthTokens(req: IRequestWithUser, res: Response) {
  * 
  * @returns 
  */
-const basicAuth = function (token_type: AuthTokenType | AuthCodeType | undefined) {
+const basicAuth = function (token_type: TAuthToken | undefined) {
     return async (req: Request & { user?: UserWithStatus }, res: Response, next: NextFunction) => {
         // Get authorization header
         const auth_header = req.headers.authorization;

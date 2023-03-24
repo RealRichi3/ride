@@ -18,4 +18,10 @@ interface IAuthCode extends Document {
     updatedAt?: Date;
 }
 
-export { IBlacklistedToken, IAuthCode};
+interface IAuthCodeWithoutUser extends Document {
+    user: undefined;
+}
+
+type TAuthCodeKeys = keyof IAuthCodeWithoutUser;
+
+export { IBlacklistedToken, IAuthCode, TAuthCodeKeys};
