@@ -271,6 +271,20 @@ const resetPassword = async (req: AuthenticatedRequest, res: Response, next: Nex
     });
 }
 
+/**
+ * Login
+ * 
+ * @description Logs user in
+ * 
+ * @param { email: string, password: string } | User email and password
+ * 
+ * @throws { BadRequestError } If user does not exist
+ * @throws { BadRequestError } If user is not verified
+ * @throws { BadRequestError } If user is not activated
+ * @throws { BadRequestError } If password is incorrect
+ * 
+ * @returns { user: IUser, access_token: string, refresh_token: string }
+ */
 const login = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
@@ -304,6 +318,17 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     });
 }
 
+/**
+ * Logout
+ * 
+ * @description Logs user out
+ * 
+ * @param { refresh_token: string } | Refresh token
+ * @param { access_token: string } | Access token - In request header
+ * 
+ * @throws { BadRequestError } If refresh token is not provided
+ * @throws { BadRequestError } If access token is not provided
+ */
 const logout = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { authorization } = req.headers;
     const access_token = authorization.split(' ')[1];
