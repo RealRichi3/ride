@@ -1,3 +1,4 @@
+import 'express-async-errors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -17,7 +18,7 @@ import routeHandler from './routes';
  */
 function initMiddlewares(app: Application): void {
     NODE_ENV == 'dev' ? app.use(morgan('dev')) : null;
-    app.use(express.json());
+    app.use(express.json())
     app.use(cors());
 }
 
@@ -30,11 +31,11 @@ function initMiddlewares(app: Application): void {
  * @returns {void}
  */
 function initExpressRouteHandler(app: Application): void {
-    app.get('/', (req: Request, res: Response, next: NextFunction) => {
-        res.status(200).send({
-            message: 'Welcome to Ride APP API built by molunorichie@gmail.com',
-        });
-    });
+    // app.get('/', (req: Request, res: Response, next: NextFunction) => {
+    //     res.status(200).send({
+    //         message: 'Welcome to Ride APP API built by molunorichie@gmail.com',
+    //     });
+    // });
 
     /** Initialize Route Handler
      *
@@ -42,12 +43,17 @@ function initExpressRouteHandler(app: Application): void {
      * based on the route prefix:
      * */
     routeHandler(app);
-
-    app.all('*', (req: Request, res: Response, next: NextFunction) => {
-        next(new NotFoundError('Resource not found'));
-    });
-
+    
     app.use(errorHandler);
+    
+    app.all('*', (req: Request, res: Response, next: NextFunction) => {
+        res.status(404).send({
+            status: 'error',
+            message: 'Route not found',
+        });
+    });
+    
+    return
 }
 
 export const app: Application = express();

@@ -15,7 +15,7 @@ export class BadRequestError extends CustomAPIError {
     }
 }
 
-export class UnauthorizedError extends CustomAPIError {
+export class UnauthenticatedError extends CustomAPIError {
     constructor(message: string){
         super(message, 401)
     }

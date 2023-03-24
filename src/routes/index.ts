@@ -1,4 +1,4 @@
-import { Router, Application, Request, Response, NextFunction } from 'express';
+import { Router, Application } from 'express';
 
 import authRoute from './auth.routes';
 
