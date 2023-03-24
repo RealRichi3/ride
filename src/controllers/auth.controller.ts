@@ -206,6 +206,18 @@ const forgotPassword = async (req: Request, res: Response, next: NextFunction) =
         subject: 'Reset your password',
         text: `Your password reset code is ${password_reset_code}`,
     });
+
+    // Get access token
+    const { access_token }: { access_token: string } = await getAuthTokens(user, 'password_reset');
+
+    return res.status(200).send({
+        status: 'success',
+        message: 'Password reset code sent to user email',
+        data: {
+            user: { ...user.toObject(), status: undefined },
+            access_token,
+        },
+    });
 }
 
 const resetPassword = async (req: Request, res: Response, next: NextFunction) => {

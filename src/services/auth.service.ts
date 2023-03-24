@@ -4,7 +4,7 @@ import { NotFoundError } from '../utils/errors';
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
 import { IAuthCode } from '../models/types/auth.types';
-import {TAuthToken, TAuthCode, UserWithStatus } from '../types';
+import { TAuthToken, TAuthCode, UserWithStatus } from '../types';
 
 
 
@@ -18,7 +18,7 @@ import {TAuthToken, TAuthCode, UserWithStatus } from '../types';
  *
  * @throws {Error} if config_type is not 'access', 'refresh', 'password_reset' or 'verification'
  */
-export function getJWTConfigVariables(config_type: TAuthToken | TAuthCode): {
+export function getJWTConfigVariables(config_type: TAuthToken): {
     secret: string;
     expiry: string;
 } {
@@ -118,7 +118,7 @@ export async function getAuthCodes<T extends keyof TAuthCode>(
  */
 export async function getAuthTokens(
     user: UserWithStatus,
-    token_type: TAuthToken | TAuthCode
+    token_type: TAuthToken = 'access'
 ): Promise<{ access_token: string; refresh_token: string | undefined }> {
     const { secret, expiry } = getJWTConfigVariables(token_type);
 
