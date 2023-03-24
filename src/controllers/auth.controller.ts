@@ -187,6 +187,17 @@ const verifyUserEmail = async (req: AuthenticatedRequest, res: Response, next: N
     });
 }
 
+/**
+ * Forgot password
+ * 
+ * @description Sends password reset code to user
+ * 
+ * @param { email: string } | User email
+ * 
+ * @throws { BadRequestError } If user does not exist
+ * 
+ * @returns { user: IUser, access_token: string }
+ */
 const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     const email: Email = req.body.email;
 
@@ -221,6 +232,18 @@ const forgotPassword = async (req: Request, res: Response, next: NextFunction) =
     });
 }
 
+/**
+ * Reset password
+ * 
+ * @description Resets user password
+ * 
+ * @param { password_reset_code: number, new_password: string } | Password reset code and new password
+ * 
+ * @throws { BadRequestError } If password reset code is incorrect
+ * @throws { InternalServerError } If password is not updated
+ * 
+ * @returns { user: IUser, access_token: string }
+ */
 const resetPassword = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const { password_reset_code, new_password } = req.body;
 
