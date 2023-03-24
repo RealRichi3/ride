@@ -28,6 +28,6 @@ router
     .post('/forgotpassword', forgotPassword)
     .patch('/resetpassword', basicAuth('password_reset'), withAuthentication(resetPassword))
     .post('/login', login)
-    .post('/logout', logout)
+    .post('/logout', basicAuth(undefined), withAuthentication(logout))
 
 export default router;

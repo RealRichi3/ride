@@ -76,7 +76,7 @@ const basicAuth = function (token_type: TAuthToken | undefined) {
          *  examples of these request are email verification, password reset
          */
         if (user?.status.isActive && !token_type) {
-            return next(new ForbiddenError('Unauthorized access, users account is not active'))
+            // return next(new ForbiddenError('Unauthorized access, users account is not active'))
         }
 
         return next()

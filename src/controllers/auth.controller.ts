@@ -283,6 +283,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check if user is verified
     if (!user.status.isVerified) return next(new BadRequestError('User is not verified'));
+    if (!user.status.isActive) return next(new BadRequestError('User is not activated'));
 
     // Check if password is correct
     const is_correct = await user.password.comparePassword(password);
@@ -303,7 +304,21 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     });
 }
 
-const logout = async (req: Request, res: Response, next: NextFunction) => {
+const logout = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const { authorization } = req.headers;
+    const access_token = authorization.split(' ')[1];
+
+    const refresh_token = req.body.refresh_token;
+
+    // Blacklist access token
+    await BlacklistedToken.create({ token: access_token });
+    await BlacklistedToken.create({ token: refresh_token });
+
+    res.status(200).send({
+        status: 'success',
+        message: 'User logged out',
+        data: null,
+    });
 }
 
 export {
