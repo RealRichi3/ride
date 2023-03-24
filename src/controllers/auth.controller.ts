@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import { IUser, User } from '../models/user.model';
-import { BadRequestError } from '../utils/errors';
-import { Password } from '../models/password.model';
+import { BadRequestError, InternalServerError } from '../utils/errors';
+import { IPassword, Password, PasswordModel } from '../models/password.model';
 import { IStatus } from '../models/types/status.types';
 import { getAuthCodes, getAuthTokens } from '../services/auth.service';
 import { sendEmail } from '../services/email.service';
@@ -220,8 +220,31 @@ const forgotPassword = async (req: Request, res: Response, next: NextFunction) =
     });
 }
 
-const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+const resetPassword = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const { password_reset_code, new_password } = req.body;
 
+    // Check if password reset code is correct
+    const auth_code = await AuthCode.findOne({ user: req.user._id, password_reset_code });
+
+    if (!auth_code) return next(new BadRequestError('Invalid password reset code'));
+
+    // Update password
+    const password = await Password.findOne({ user: req.user._id });
+
+    password
+        ? await password.updatePassword(new_password)
+        : next(new InternalServerError('An error occurred'));
+
+    // Blacklist access token
+    await BlacklistedToken.create({ token: req.headers.authorization.split(' ')[1] });
+
+    res.status(200).send({
+        status: 'success',
+        message: 'Password reset successful',
+        data: {
+            user: { ...req.user, status: undefined },
+        },
+    });
 }
 
 
